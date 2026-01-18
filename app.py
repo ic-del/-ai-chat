@@ -14,6 +14,12 @@ client = OpenAI(
     base_url="https://api.deepseek.com"
 )
 
+# Initialize Perplexity client
+perplexity_client = OpenAI(
+        api_key=os.getenv("PERPLEXITY_API_KEY"),
+        base_url="https://api.perplexity.ai"
+    )
+
 # In-memory conversation history (use a database for production)
 conversations = {}
 
@@ -79,5 +85,58 @@ def simon():
 def health():
     return jsonify({"status": "healthy", "service": "SIMON AI"})
 
+
+@app.route('/perplexity', methods=['POST'])
+def perplexity():
+        """
+            Perplexity endpoint using Perplexity's Sonar models for web search
+                """
+        data = request.json
+        user_message = data.get('message', '')
+        session_id = data.get('session_id', 'default')
+
+    # Get or create conversation history
+    if session_id not in conversations:
+                conversations[session_id] = []
+
+    # Add user message to history
+    conversations[session_id].append({
+                "role": "user",
+                "content": user_message
+            })
+
+    try:
+                # Call Perplexity API with Sonar model
+                response = perplexity_client.chat.completions.create(
+                                model="sonar-pro",  # Perplexity's search model
+                                messages=conversations[session_id],
+                                temperature=0.7,
+                                max_tokens=2000
+                            )
+
+        assistant_message = response.choices[0].message.content
+
+        # Add assistant response to history
+        conversations[session_id].append({
+                        "role": "assistant",
+                        "content": assistant_message
+                    })
+
+        return jsonify({
+                        "reply": assistant_message,
+                        "actions": [],
+                        "memory_updates": {
+                                            "last_interaction": user_message,
+                                            "conversation_length": len(conversations[session_id])
+                                        }
+                    })
+
+    except Exception as e:
+        return jsonify({
+                        "error": str(e),
+                        "reply": "I encountered an error processing your request.",
+                        "actions": [],
+                        "memory_updates": {}
+                    }), 500
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
