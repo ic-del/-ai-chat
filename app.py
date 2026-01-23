@@ -22,11 +22,10 @@ perplexity_client = OpenAI(
 # In-memory conversation history (use a database for production)
 conversations = {}
 
-@app.route('/simon', methods=['POST'])
-def simon():
+@app.route('/atlas', methods=['POST'])
+def atlas():
     """
-    SIMON endpoint that returns {reply, actions, memory_updates}
-    """
+    Atlas endpoint that returns {reply, actions, memory_updates}    """
     data = request.json
     user_message = data.get('message', '')
     session_id = data.get('session_id', 'default')
@@ -51,8 +50,7 @@ def simon():
         else:
             selected_client = client
             selected_model = "deepseek-chat"
-            system_message = "You are SIMON, an autonomous AI assistant with tool-calling capabilities. You help with tasks, can access file systems, browse the web, and interact with compliance databases."
-        
+            system_message = "You are Atlas, an autonomous AI assistant with tool-calling capabilities. You help with tasks, can access file systems, browse the web, and interact with compliance databases."        
         # Call selected API
         response = selected_client.chat.completions.create(
             model=selected_model,
@@ -91,7 +89,6 @@ def simon():
 
 @app.route('/health', methods=['GET'])
 def health():
-    return jsonify({"status": "healthy", "service": "SIMON AI"})
-
+    return jsonify({"status": "healthy", "service": "Atlas AI"})
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
