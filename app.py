@@ -31,8 +31,7 @@ def simon():
     data = request.json
     user_message = data.get('message', '')
     session_id = data.get('session_id', 'default')
-        model = data.get('model', 'deepseek')  # 'deepseek' or 'perplexity'
-    
+    model = data.get('model', 'deepseek')  # 'deepseek' or 'perplexity'    
     # Get or create conversation history
     if session_id not in conversations:
         conversations[session_id] = []
