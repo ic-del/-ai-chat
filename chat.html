@@ -170,13 +170,13 @@
                     type="text" 
                     id="messageInput" 
                     placeholder="Type your message here..." 
-                                    <select id="modelSelector" style="padding: 12px 16px; border: 2px solid #eee; border-radius: 25px; font-size: 14px; outline: none; margin-right: 10px; cursor: pointer;">
-                                    <option value="deepseek" selected>DeepSeek</option>
-                                    <option value="perplexity">Perplexity</option>
-                                </select>
-                    autocomplete="off"
+                    autocomplete="off" 
                     required
                 >
+                <select id="modelSelector" style="padding: 12px 16px; border: 2px solid #eee; border-radius: 25px; font-size: 14px; outline: none; margin-right: 10px; cursor: pointer;">
+                    <option value="deepseek" selected>DeepSeek</option>
+                    <option value="perplexity">Perplexity</option>
+                </select>
                 <button type="submit" id="sendButton">Send</button>
             </form>
         </div>
@@ -185,7 +185,7 @@
     <script>
         const chatMessages = document.getElementById('chatMessages');
         const chatForm = document.getElementById('chatForm');
-        const messageInput = document.getElementById('messageInput');
+        const  = document.getElementById('messageInput');
         const sendButton = document.getElementById('sendButton');
         const sessionId = 'web-session-' + Date.now();
 
