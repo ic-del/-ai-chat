@@ -173,10 +173,6 @@
                     autocomplete="off" 
                     required
                 >
-                <select id="modelSelector" style="padding: 12px 16px; border: 2px solid #eee; border-radius: 25px; font-size: 14px; outline: none; margin-right: 10px; cursor: pointer;">
-                    <option value="deepseek" selected>DeepSeek</option>
-                    <option value="perplexity">Perplexity</option>
-                </select>
                 <button type="submit" id="sendButton">Send</button>
             </form>
         </div>
@@ -185,7 +181,7 @@
     <script>
         const chatMessages = document.getElementById('chatMessages');
         const chatForm = document.getElementById('chatForm');
-        const  = document.getElementById('messageInput');
+const messageInput = document        .getElementById('messageInput');
         const sendButton = document.getElementById('sendButton');
         const sessionId = 'web-session-' + Date.now();
 
@@ -224,32 +220,52 @@
         }
 
         async function sendMessage(message) {
-            try {
-                const response = await fetch('http://localhost:5000/atlas', {
+        try {
+            // Call both DeepSeek and Perplexity simultaneously
+            const [deepseekResponse, perplexityResponse] = await Promise.all([
+                fetch('http://localhost:5000/atlas', {
                     method: 'POST',
-                    headers: {
-                                const modelSelector = document.getElementById('modelSelector');
-                                const selectedModel = modelSelector.value;
-                        'Content-Type': 'application/json'
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         message: message,
-                        session_id: sessionId
-                    }),
-                                            model: selectedModel
-                });
+                        session_id: sessionId,
+                        model: 'deepseek'
+                    })
+                }),
+                fetch('http://localhost:5000/atlas', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        message: message,
+                        session_id: sessionId,
+                        model: 'perplexity'
+                    })
+                })
+            ]);
 
-                const data = await response.json();
-                
-                if (response.ok) {
-                    return data.reply;
-                } else {
-                    return 'Error: ' + (data.error || 'Failed to get response');
-                }
-            } catch (error) {
-                return 'Connection error. Make sure the Flask server is running on http://localhost:5000';
+            const deepseekData = await deepseekResponse.json();
+            const perplexityData = await perplexityResponse.json();
+
+            // Combine both responses
+            let combinedResponse = '';
+            
+            if (deepseekResponse.ok && deepseekData.reply) {
+                combinedResponse += '🤖 DeepSeek:\n' + deepseekData.reply + '\n\n';
             }
+            
+            if (perplexityResponse.ok && perplexityData.reply) {
+                combinedResponse += '🔍 Perplexity:\n' + perplexityData.reply;
+            }
+
+            if (combinedResponse) {
+                return combinedResponse;
+            } else {
+                return 'Error: Failed to get responses from both models';
+            }
+        } catch (error) {
+            return 'Connection error. Make sure the Flask server is running on http://localhost:5000';
         }
+    }
 
         chatForm.addEventListener('submit', async (e) => {
             e.preventDefault();
