@@ -221,49 +221,26 @@ const messageInput = document        .getElementById('messageInput');
 
         async function sendMessage(message) {
         try {
-            // Call both DeepSeek and Perplexity simultaneously
-            const [deepseekResponse, perplexityResponse] = await Promise.all([
-                fetch('http://localhost:5000/atlas', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        message: message,
-                        session_id: sessionId,
-                        model: 'deepseek'
-                    })
-                }),
-                fetch('http://localhost:5000/atlas', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        message: message,
-                        session_id: sessionId,
-                        model: 'perplexity'
-                    })
+            const response = await fetch('http://localhost:5000/atlas', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    message: message,
+                    session_id: sessionId,
+                    model: 'combined'
                 })
-            ]);
+            });
 
-            const deepseekData = await deepseekResponse.json();
-            const perplexityData = await perplexityResponse.json();
+            const data = await response.json();
 
-            // Combine both responses
-            let combinedResponse = '';
-            
-            if (deepseekResponse.ok && deepseekData.reply) {
-                combinedResponse += '🤖 DeepSeek:\n' + deepseekData.reply + '\n\n';
-            }
-            
-            if (perplexityResponse.ok && perplexityData.reply) {
-                combinedResponse += '🔍 Perplexity:\n' + perplexityData.reply;
-            }
-
-            if (combinedResponse) {
-                return combinedResponse;
+            if (response.ok) {
+                return data.reply;
             } else {
-                return 'Error: Failed to get responses from both models';
+                return 'Error: ' + (data.error || 'Failed to get response');
             }
         } catch (error) {
             return 'Connection error. Make sure the Flask server is running on http://localhost:5000';
+        }
         }
     }
 
