@@ -86,6 +86,7 @@ def atlas():
             "error": str(e),
             "reply": "I encountered an error processing your request.",
             "actions": [],
+                    print(f"ERROR: {str(e)}")  # Debug: print error to console
             "memory_updates": {}
         }), 500
 
