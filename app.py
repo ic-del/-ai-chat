@@ -82,15 +82,14 @@ def atlas():
         })
     
     except Exception as e:
+                print(f"ERROR in /atlas: {str(e)}")
         return jsonify({
             "error": str(e),
             "reply": "I encountered an error processing your request.",
             "actions": [],
-                    print(f"ERROR: {str(e)}")  # Debug: print error to console
             "memory_updates": {}
         }), 500
 
-@app.route('/health', methods=['GET'])
 def health():
     return jsonify({"status": "healthy", "service": "Atlas AI"})
 if __name__ == '__main__':
